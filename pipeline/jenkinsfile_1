@@ -1,8 +1,8 @@
 node {
-    stage('test'){
-        echo 'Hello World'
+    stage('step1'){
+        echo 'pipeline1-1 done.'
     }
-    stage('test2'){
-        echo 'Hello World2'
+    stage('step2'){
+        echo 'pipeline1-2 done.'
     }
 }

@@ -1,0 +1,124 @@
+
+jenkins:
+  # システムメッセージ
+  systemMessage: "JCasC's sample"
+
+  # Maven設定
+  numExecutors: 20 # 平行実行数
+  quietPeriod: 1 # 待機時間(秒)
+  scmCheckoutRetryCount: 0 # チェックアウトのリトライ数
+  # TODO 確認
+  mode: NORMAL
+
+  # TODO 確認
+  agentProtocols:
+    - "JNLP4-connect"
+
+  # global Properties設定
+  globalNodeProperties:
+    - envVars:
+        env:
+          - key: ENV
+            value: local
+          - key: PATH
+            value: /usr/local/bin/:$PATH
+
+  # ログインユーザ設定
+  securityRealm:  
+    local:
+      allowsSignup: false # 自動ログイン可否
+      users:
+       - id: ${adminuser} # docker-composeで指定
+         password: ${adminpw} # docker-composeで指定
+       - id: 'adduser1' # ユーザ追加確認
+         password: 'adduser1'
+
+  # Configure Global Security画面 Authorization設定 
+  authorizationStrategy:
+     loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+  # TODO　確認
+  crumbIssuer: "standard"
+
+# ジョブ設定
+jobs: 
+  - script: > # script指定
+      job('jobSample_1') {
+          description('定期実行 確認')
+          keepDependencies(false) //Protects all builds that are referenced from builds of this project (via fingerprint) from log rotation.
+          parameters {
+              stringParam('args_user1','','')
+          }
+          logRotator {
+              daysToKeep(-1) //Sets the number of days to keep old items. Defaults to -1.
+              numToKeep(10)  //If specified, only up to this number of build records are kept.
+              artifactDaysToKeep(-1) //If specified, artifacts from builds older than this number of days will be deleted, but the logs, history, reports, etc for the build will be kept.
+              artifactNumToKeep(-1) //If specified, only up to this number of builds have their artifacts retained.
+          }
+          triggers {
+              cron('H/30 * * * *') //定期実行
+          }
+          concurrentBuild(true) //Allows Jenkins to schedule and execute multiple builds concurrently.
+          steps  {
+              shell("echo jenkinsSample_1; echo '定期実行 確認'; echo success!")
+          }
+      }
+  - file: /var/jenkins_home/jobFile/jobSample_slack.dsl # file指定　
+  - file: /var/jenkins_home/jobFile/pipeline_master.dsl # masterチェック
+  - file: /var/jenkins_home/jobFile/pipeline_byGitHub.dsl # githubのソース参照
+  - file: /var/jenkins_home/jobFile/pipeline_slave1.dsl # slaveチェック
+  - file: /var/jenkins_home/jobFile/pipeline_slave2.dsl # slaveチェック
+
+# Global Tool Configuration画面　設定
+tool:
+  git: # git指定
+    installations:
+      - name: Default
+        home: "git"
+
+security:
+  remotingCLI:
+    enabled: true
+
+# 秘匿情報の設定
+credentials:  
+  system:
+    domainCredentials:
+      - credentials:
+          - string:
+              scope: GLOBAL
+              id: slack-token
+              secret: '${slacktoken}'  #docker-composeで指定。
+              description: Slack Token
+          - string:
+              scope: GLOBAL
+              id: github-token
+              secret: '${github}'  #docker-composeで指定。
+              description: Github Token
+              
+#未分類項目
+unclassified:
+
+  location: 
+    url: http://localhost:80/
+    adminAddress: nakasin52@live.jp
+
+  #githubの設定
+  githubpluginconfig:
+    configs:
+    - name: "nakashima's github"
+      apiUrl: "https://api.github.com"
+      credentialsId: "github-token"
+      manageHooks: true
+
+  #slackの設定
+  slackNotifier:  
+    teamDomain: nakasin52
+    room: general
+    tokenCredentialId: slack-token #credentialsで設定したslack用tokenを指定。
+
+  # TODO
+  pollSCM:  
+    pollingThreadCount: 0 # 0に設定しても最低5になる。未設定の仕方不明。
+

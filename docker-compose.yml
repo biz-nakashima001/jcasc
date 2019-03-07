@@ -1,0 +1,34 @@
+version: '3.3'
+
+services:
+  jenkins: 
+    build: # Dokerfileの指定
+      context: ./master
+    ports: 
+      - 80:8080 # ホストのポート/コンテナのポート
+      - 50000:50000
+    volumes: # ボリュームの指定
+      - jenkins_home:/var/jenkins_home
+      - ./jenkins.yaml:/var/jenkins_home/jenkins.yaml
+      - ./jobFile:/var/jenkins_home/jobFile
+    secrets: # 秘匿情報の指定
+      - github
+      - adminuser
+      - adminpw
+      - slacktoken
+      # - agent_private_key
+    environment: # 環境変数設定
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/jenkins.yaml
+secrets: # 環境毎、個別に事前用意しておく秘匿情報ファイル
+  github: # ハッシュキー
+    file: /var/deploy/secrets/github 
+  adminuser: # ログインユーザ名
+    file: /var/deploy/secrets/adminuser 
+  adminpw: # ログインパスワード
+    file: /var/deploy/secrets/adminpw 
+  slacktoken: 
+    file: /var/deploy/secrets/slacktoken
+  # agent_private_key: 
+  #   file: ~/.ssh/id_rsa
+volumes:
+  jenkins_home:
