@@ -72,31 +72,31 @@ docker stop {コンテナID}
 ```
 
 
-### 3.Dockerボリューム　一覧確認
+### 3.Dockerボリューム　一覧確認
 ```
 docker volume ls
 ```
 
 
-### 4.Dockerボリューム　削除
+### 4.Dockerボリューム　削除
 ```
 docker volume rm {イメージID}
 ```
 
 
-### 5.不要イメージ/コンテナ一括削除
+### 5.不要イメージ/コンテナ一括削除
 ```
 docker system prune
 ```
 
 
-### 6.Dockerイメージ　一覧確認
+### 6.Dockerイメージ　一覧確認
 ```
 docker image ls
 ```
 
 
-### 7.Dockerイメージ　削除
+### 7.Dockerイメージ　削除
 ```
 docker image rm {ボリュームID}
 ```
